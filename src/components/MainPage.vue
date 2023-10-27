@@ -1,13 +1,18 @@
 <template>
     <div class="main-page">
       Here is my web project
+      <TodoVue />
     </div>
-</template>
+  </template>
   
   <script>
-
-export default {
+  import TodoVue from './ToDo.vue';  // Adjust the path accordingly
+  
+  export default {
     name: 'MainPage',
+    components: {
+      TodoVue,
+    }
   };
   </script>
   
