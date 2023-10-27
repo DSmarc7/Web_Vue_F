@@ -1,6 +1,6 @@
 <template>
     <div class="main-page">
-      Here is my web project
+
       <TodoVue />
     </div>
   </template>
