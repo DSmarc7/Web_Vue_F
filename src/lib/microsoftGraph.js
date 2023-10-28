@@ -1,4 +1,3 @@
-// file src/lib/microsoftGraph.js
 import * as msal from '@azure/msal-browser'
 
 /**
@@ -17,9 +16,31 @@ const msalInstance = new msal.PublicClientApplication({
   }
 })
 msalInstance.initialize()
+
+let isInteractionInProgress = false;
+
 export async function signInAndGetUser () {
-  const authResult = await msalInstance.loginPopup(requestedScopes)
-  msalInstance.setActiveAccount(authResult.account)
-  return authResult.account
+  if (isInteractionInProgress) return;
+  isInteractionInProgress = true;
+
+  try {
+    const authResult = await msalInstance.loginPopup(requestedScopes);
+    msalInstance.setActiveAccount(authResult.account);
+    isInteractionInProgress = false;
+    return authResult.account;
+  } catch (error) {
+    isInteractionInProgress = false;
+    throw error;
+  }
 }
 
+export function signOutUser() {
+  if (isInteractionInProgress) return;
+  isInteractionInProgress = true;
+
+  try {
+    msalInstance.logout(); // This will sign the user out and clear the session data
+  } finally {
+    isInteractionInProgress = false;
+  }
+}

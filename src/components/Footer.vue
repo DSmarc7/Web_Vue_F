@@ -1,7 +1,7 @@
 <template>
     <footer class="full-width-footer">
       <div class="legal-credits">
-        <p>&copy; 2023 Your Company Name. All rights reserved.</p>
+        <p>&copy; 2023 Task Manager EFREI. All rights reserved.</p>
         <!-- Add your legal credits and information here -->
       </div>
     </footer>

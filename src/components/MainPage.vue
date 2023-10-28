@@ -1,6 +1,5 @@
 <template>
     <div class="main-page">
-
       <TodoVue />
     </div>
   </template>
@@ -19,7 +18,7 @@
   <style scoped>
   .main-page {
     text-align: center;
-    padding: 20px;
+    /* padding: 10px; */
     font-size: 1.5rem;
     color: #555;
   }
