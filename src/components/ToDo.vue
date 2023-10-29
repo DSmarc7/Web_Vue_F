@@ -29,6 +29,7 @@
                           :id="'item_' + item.id"
                           v-model="item.done"
                           type="checkbox"
+                          @change="toggleTaskCompletion(item)"
                       />
                       <label :for="'item_' + item.id"></label>
                       <span class="todo-text">{{ item.title }}</span>
@@ -80,9 +81,11 @@
   </div>
 </template>
 
+
   
 <script>
 import { mapGetters, mapActions } from 'vuex';
+import axios from 'axios';
 
 export default {
     name: 'ToDo',
@@ -92,6 +95,14 @@ export default {
             showComplete: false,
             beerCelebrationImage: require('@/assets/beer_celebration.svg'),
         };
+    },
+    async created() {
+        try {
+            const response = await axios.get(`/tasks/${this.user.id}`);
+            this.updateTasks(response.data);
+        } catch (error) {
+            console.error("Error fetching tasks:", error);
+        }
     },
     computed: {
         ...mapGetters('auth', ['user']),
@@ -120,27 +131,59 @@ export default {
     },
     methods: {
         ...mapActions('auth', ['updateTasks']),
-        addItem() {
+        async addItem() {
             if (this.new_todo.trim()) {
                 const newId = Date.now();  // Use the current timestamp as an ID
-                const updatedTasks = [...this.todoList, { id: newId, title: this.new_todo, done: false }];
-                this.updateTasks(updatedTasks);
-                this.new_todo = '';
+                const newTask = { id: newId, title: this.new_todo, done: false };
+                try {
+                    await axios.post('/tasks', newTask);
+                    const updatedTasks = [...this.todoList, newTask];
+                    this.updateTasks(updatedTasks);
+                    this.new_todo = '';
+                } catch (error) {
+                    console.error("Error adding task:", error);
+                }
             }
         },
-        deleteItem(itemToDelete) {
-            const updatedTasks = this.todoList.filter(item => item.id !== itemToDelete.id);
-            this.updateTasks(updatedTasks);
+        async deleteItem(itemToDelete) {
+            try {
+                await axios.delete(`/tasks/${itemToDelete.id}`);
+                const updatedTasks = this.todoList.filter(item => item.id !== itemToDelete.id);
+                this.updateTasks(updatedTasks);
+            } catch (error) {
+                console.error("Error deleting task:", error);
+            }
+        },
+        async toggleTaskStatus(task) {
+            try {
+                task.done = !task.done;
+                await axios.put(`/tasks/${task.id}`, task);
+                const taskIndex = this.todoList.findIndex(item => item.id === task.id);
+                if (taskIndex > -1) {
+                    this.todoList[taskIndex] = task;
+                    this.updateTasks([...this.todoList]);
+                }
+            } catch (error) {
+                console.error("Error updating task:", error);
+            }
         },
         toggleShowComplete() {
             this.showComplete = !this.showComplete;
         },
-        clearAll() {
-            this.updateTasks([]);
+        async clearAll() {
+            try {
+                for (let task of this.todoList) {
+                    await axios.delete(`/tasks/${task.id}`);
+                }
+                this.updateTasks([]);
+            } catch (error) {
+                console.error("Error clearing tasks:", error);
+            }
         },
     }
 };
 </script>
+
 
 
 <style scoped>

@@ -41,17 +41,20 @@ export default {
         }
     },
     methods: {
-        ...mapActions('auth', ['signIn', 'signOut']),
+        ...mapActions('auth', ['signIn', 'signOut', 'fetchTasks']),
+        
         async signInUser() {
             this.isButtonDisabled = true;
             try {
                 await this.signIn();
+                await this.fetchTasks(this.user.id);  // Fetch tasks once signed in
             } catch (error) {
                 console.error("Error signing in:", error);
             } finally {
                 this.isButtonDisabled = false;
             }
         },
+        
         signOutUser() {
             this.isButtonDisabled = true;
             try {
